@@ -1,0 +1,15 @@
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+CRON_WS=/home/csenler/cron_ws
+
+SCRIPT_TEST=NULL
+
+
+* * * * * ( ${SHELL} ${CRON_WS}/${SCRIPT_TEST} )
+* * * * * ( sleep 10; ${SHELL} ${CRON_WS}/${SCRIPT_TEST} )
+* * * * * ( sleep 20; ${SHELL} ${CRON_WS}/${SCRIPT_TEST} )
+* * * * * ( sleep 30; ${SHELL} ${CRON_WS}/${SCRIPT_TEST} )
+* * * * * ( sleep 40; ${SHELL} ${CRON_WS}/${SCRIPT_TEST} )
+* * * * * ( sleep 50; ${SHELL} ${CRON_WS}/${SCRIPT_TEST} )
+
+# remember: this file should end with a newline at the end

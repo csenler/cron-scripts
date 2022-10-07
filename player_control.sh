@@ -1,16 +1,33 @@
 #!/bin/bash
 
-echo "<<< player_control START >>>"
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $0 {SCRIPTS_DIR (eshot-player-scripts)}" >&2
+  exit 1
+fi
+
+timestamp=$(date +%s)
+
+echo "<<< player_control START [${timestamp}] >>>"
 
 CONFIG_RESET_DELAY_TIME=180 # seconds
 echo "config reset delay time in seconds: ${CONFIG_RESET_DELAY_TIME}"
 
+## path ops
+echo "current DIR (before): ${PWD}"
+
 ## find scripts folder path
-SCRIPTS_DIR="$(echo $(cd ../ && pwd))"
+# SCRIPTS_DIR="$(echo $(cd ../ && pwd))"
+SCRIPTS_DIR=$1
 echo "scripts DIR: ${SCRIPTS_DIR}"
 
 CRON_WS=${SCRIPTS_DIR}/cron-scripts
 echo "cron_ws DIR: ${CRON_WS}"
+
+echo "changing current working dir to : ${SCRIPTS_DIR}"
+cd ${SCRIPTS_DIR}
+
+echo "current DIR (after): ${PWD}"
+
 
 ## check xibo states
 SERVICE_WATCHDOG="xibo-watchdog"
@@ -40,15 +57,29 @@ echo "watchdog status : ${STATUS_WATCHDOG}"
 echo "player status : ${STATUS_PLAYER}"
 
 ## =========================== FUNCTIONS START ==================================================================
+function get_cron_ws_path(){
+    # read from db
+    cronWsPathFile="${CRON_WS}/db/cron_ws_path.dat"
+    CRON_WS=""
+    echo "cronWsPathFile file : ${cronWsPathFile}"
+    # if we don't have a file, then initialize
+    if [ ! -f "$cronWsPathFile" ]; then
+        bash ${CRON_WS}/initialize_db.sh ${CRON_WS} cronWsPath
+    else
+        # read the value from the file
+        CRON_WS=$(cat "$cronWsPathFile")
+    fi
+}
+
 function check_player_config_reset_state(){
     # check auto_config_reset
     # read from db
-    resetStateFile="db/player_config_reset_state.dat"
+    resetStateFile="${CRON_WS}/db/player_config_reset_state.dat"
     playerResetState=""
     echo "resetStateFile file : ${resetStateFile}"
     # if we don't have a file, then initialize
     if [ ! -f "$resetStateFile" ]; then
-        bash ${CRON_WS}/initialize_db.sh playerResetConfigState
+        bash ${CRON_WS}/initialize_db.sh ${CRON_WS} playerResetConfigState
     else
         # read the value from the file
         playerResetState=$(cat "$resetStateFile")
@@ -58,12 +89,12 @@ function check_player_config_reset_state(){
 function player_error_state(){
     ## check elapsed time since last db call, then execute player_kill, auto_config_reset if above threshold
     # read from db
-    timestampFile="db/timestamp.dat"
+    timestampFile="${CRON_WS}/db/timestamp.dat"
     refTimestamp=""
     echo "timestampFile file : ${timestampFile}"
     # if we don't have a file, then initialize
     if [ ! -f "$timestampFile" ]; then
-        bash ${CRON_WS}/initialize_db.sh timestamp
+        bash ${CRON_WS}/initialize_db.sh ${CRON_WS} timestamp
     else
         # read the value from the file
         refTimestamp=$(cat "$timestampFile")
@@ -117,7 +148,7 @@ elif [ "${STATUS_WATCHDOG}" -eq 0 ] && [ "${STATUS_PLAYER}" -eq 0 ]; then # watc
         echo "player reset detected, will start player with arguments"
         player_start 
         echo "setting player_config_reset_state to false"
-        bash ${CRON_WS}/db_playerResetState.sh "false"
+        bash ${CRON_WS}/db_playerResetState.sh ${CRON_WS} "false"
     elif [ "${playerResetState}" = "false" ]; then
         echo "player reset NOT detected, will start player by calling savron-player"
         run_player_normally
@@ -132,8 +163,8 @@ elif [ "${STATUS_WATCHDOG}" -eq 1 ] && [ "${STATUS_PLAYER}" -eq 1 ]; then # work
     if [ "${playerResetState}" = "true" ]; then
         echo "setting player_config_reset_state to false"
         # set config_reset state to false
-        bash ${CRON_WS}/db_playerResetState.sh "false"
+        bash ${CRON_WS}/db_playerResetState.sh ${CRON_WS} "false"
     fi    
 fi
 
-echo "<<< player_control END >>>"
+echo "<<< player_control END [${timestamp}] >>>"

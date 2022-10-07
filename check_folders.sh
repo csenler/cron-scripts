@@ -33,6 +33,9 @@ if [ ! -d "${PWD}/config" ]; then
    cp -r resource/* config/original
 else
    echo "config folder exist."
+   ## TODO: make conditional
+   echo "copying necessery original configs from resource"
+   cp -r resource/* config/original
 fi
 
 echo "folder check done."

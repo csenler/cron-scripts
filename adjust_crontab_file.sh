@@ -17,9 +17,16 @@ LOGROTATE_SCRIPT=$4
 # ORIGINAL_CRON_FILE=cron_jobs_original_log_to_file
 TARGET_CRON_FILE=config/current/cron_jobs_current
 
-echo "will change scripts folder path from NULL_CRON_WS to ${SCRIPTS_FOLDER_PATH}"
+CRON_WS=${SCRIPTS_FOLDER_PATH}/cron-scripts
+echo "crow_ws : ${CRON_WS}"
+
+echo "will change scripts root folder path from NULL_SCRIPTS_ROOT to ${SCRIPTS_FOLDER_PATH}"
 ## NOTE: we have to use different delimititer here ';' to prevent conflict with '\' in received folder path
-sed "s;NULL_CRON_WS;${SCRIPTS_FOLDER_PATH};g" ${ORIGINAL_CRON_FILE} > ${TARGET_CRON_FILE} 
+sed "s;NULL_SCRIPTS_ROOT;${SCRIPTS_FOLDER_PATH};g" ${ORIGINAL_CRON_FILE} > ${TARGET_CRON_FILE} 
+
+echo "will change cron_ws folder path from NULL_CRON_WS to ${CRON_WS}"
+## NOTE: we have to use different delimititer here ';' to prevent conflict with '\' in received folder path
+sed -i "s;NULL_CRON_WS;${CRON_WS};g" ${TARGET_CRON_FILE} 
 
 echo "will change main script name to ${SCRIPT_NAME}"
 sed -i "s/NULL_MAIN_SCRIPT/${SCRIPT_NAME}/g" ${TARGET_CRON_FILE}

@@ -1,0 +1,18 @@
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+SCRIPTS_ROOT_DIR=NULL_SCRIPTS_ROOT
+CRON_WS=NULL_CRON_WS
+
+SCRIPT_TEST=NULL_MAIN_SCRIPT
+LOGROTATE_SCRIPT=NULL_LOGROTATE
+
+
+* * * * * ( ${SHELL} ${CRON_WS}/${SCRIPT_TEST} ${SCRIPTS_ROOT_DIR} )
+* * * * * ( sleep 10; ${SHELL} ${CRON_WS}/${SCRIPT_TEST} ${SCRIPTS_ROOT_DIR} )
+* * * * * ( sleep 20; ${SHELL} ${CRON_WS}/${SCRIPT_TEST} ${SCRIPTS_ROOT_DIR} )
+* * * * * ( sleep 30; ${SHELL} ${CRON_WS}/${SCRIPT_TEST} ${SCRIPTS_ROOT_DIR} )
+* * * * * ( sleep 40; ${SHELL} ${CRON_WS}/${SCRIPT_TEST} ${SCRIPTS_ROOT_DIR} )
+* * * * * ( sleep 50; ${SHELL} ${CRON_WS}/${SCRIPT_TEST} ${SCRIPTS_ROOT_DIR} )
+0 * * * * ( ${SHELL} ${CRON_WS}/${LOGROTATE_SCRIPT} ${CRON_WS}) # hourly
+
+# remember: this file should end with a newline at the end

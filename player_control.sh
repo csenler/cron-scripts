@@ -1,61 +1,4 @@
 #!/bin/bash
-
-if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 {SCRIPTS_DIR (eshot-player-scripts)}" >&2
-  exit 1
-fi
-
-timestamp=$(date +%s)
-
-echo "<<< player_control START [${timestamp}] >>>"
-
-CONFIG_RESET_DELAY_TIME=180 # seconds
-echo "config reset delay time in seconds: ${CONFIG_RESET_DELAY_TIME}"
-
-## path ops
-echo "current DIR (before): ${PWD}"
-
-## find scripts folder path
-# SCRIPTS_DIR="$(echo $(cd ../ && pwd))"
-SCRIPTS_DIR=$1
-echo "scripts DIR: ${SCRIPTS_DIR}"
-
-CRON_WS=${SCRIPTS_DIR}/cron-scripts
-echo "cron_ws DIR: ${CRON_WS}"
-
-echo "changing current working dir to : ${SCRIPTS_DIR}"
-cd ${SCRIPTS_DIR}
-
-echo "current DIR (after): ${PWD}"
-
-
-## check xibo states
-SERVICE_WATCHDOG="xibo-watchdog"
-SERVICE_PLAYER="xibo-player"
-
-STATUS_WATCHDOG=0
-STATUS_PLAYER=0
-
-if pgrep -x "$SERVICE_WATCHDOG" >/dev/null
-then
-    echo "$SERVICE_WATCHDOG is running"
-    STATUS_WATCHDOG=1
-else
-    echo "$SERVICE_WATCHDOG stopped"
-fi
-
-
-if pgrep -x "$SERVICE_PLAYER" >/dev/null
-then
-    echo "$SERVICE_PLAYER is running"
-    STATUS_PLAYER=1
-else
-    echo "$SERVICE_PLAYER stopped"
-fi
-
-echo "watchdog status : ${STATUS_WATCHDOG}"
-echo "player status : ${STATUS_PLAYER}"
-
 ## =========================== FUNCTIONS START ==================================================================
 function get_cron_ws_path(){
     # read from db
@@ -134,37 +77,106 @@ function player_start(){
 function run_player_normally(){
     /bin/sh ${CRON_WS}/run_savron_player.sh
 }
+
+function mainControlSequence(){
+    ## main control 
+    if [ "${STATUS_WATCHDOG}" -eq 1 ] && [ "${STATUS_PLAYER}" -eq 0 ]; then # error state
+        echo "player error state detected."
+        player_error_state
+    elif [ "${STATUS_WATCHDOG}" -eq 0 ] && [ "${STATUS_PLAYER}" -eq 0 ]; then # watchdog not started, start state
+        echo "watchdog & player not running, check reset state"
+        check_player_config_reset_state
+        if [ "${playerResetState}" = "true" ]; then
+            echo "player reset detected, will start player with arguments"
+            player_start 
+            echo "setting player_config_reset_state to false"
+            bash ${CRON_WS}/db_playerResetState.sh ${CRON_WS} "false"
+        elif [ "${playerResetState}" = "false" ]; then
+            echo "player reset NOT detected, will start player by calling savron-player"
+            run_player_normally
+        else
+            echo "playerResetState can not be obtained, will try to run player normally..."
+            run_player_normally
+        fi
+    elif [ "${STATUS_WATCHDOG}" -eq 1 ] && [ "${STATUS_PLAYER}" -eq 1 ]; then # working state, set config_reset to false -> this will also be the first condition
+        echo "watchdog & player running..."
+        check_player_config_reset_state
+        echo "playerResetState : ${playerResetState}"
+        if [ "${playerResetState}" = "true" ]; then
+            echo "setting player_config_reset_state to false"
+            # set config_reset state to false
+            bash ${CRON_WS}/db_playerResetState.sh ${CRON_WS} "false"
+        fi    
+    fi    
+}
 ## =========================== FUNCTIONS END ==================================================================
 
 
-## main control 
-if [ "${STATUS_WATCHDOG}" -eq 1 ] && [ "${STATUS_PLAYER}" -eq 0 ]; then # error state
-    echo "player error state detected."
-    player_error_state
-elif [ "${STATUS_WATCHDOG}" -eq 0 ] && [ "${STATUS_PLAYER}" -eq 0 ]; then # watchdog not started, start state
-    echo "watchdog & player not running, check reset state"
-    check_player_config_reset_state
-    if [ "${playerResetState}" = "true" ]; then
-        echo "player reset detected, will start player with arguments"
-        player_start 
-        echo "setting player_config_reset_state to false"
-        bash ${CRON_WS}/db_playerResetState.sh ${CRON_WS} "false"
-    elif [ "${playerResetState}" = "false" ]; then
-        echo "player reset NOT detected, will start player by calling savron-player"
-        run_player_normally
-    else
-        echo "playerResetState can not be obtained, will try to run player normally..."
-        run_player_normally
-    fi
-elif [ "${STATUS_WATCHDOG}" -eq 1 ] && [ "${STATUS_PLAYER}" -eq 1 ]; then # working state, set config_reset to false -> this will also be the first condition
-    echo "watchdog & player running..."
-    check_player_config_reset_state
-    echo "playerResetState : ${playerResetState}"
-    if [ "${playerResetState}" = "true" ]; then
-        echo "setting player_config_reset_state to false"
-        # set config_reset state to false
-        bash ${CRON_WS}/db_playerResetState.sh ${CRON_WS} "false"
-    fi    
-fi
 
-echo "<<< player_control END [${timestamp}] >>>"
+(
+    # Wait for lock on /var/lock/.myscript.exclusivelock (fd 200) for 10 seconds
+    flock -x -w 10 200 || exit 1
+    
+    #Do stuff
+    if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 {SCRIPTS_DIR (eshot-player-scripts)}" >&2
+    exit 1
+    fi
+
+    timestamp=$(date +%s)
+
+    echo "<<< player_control START [${timestamp}] >>>"
+
+    CONFIG_RESET_DELAY_TIME=180 # seconds
+    echo "config reset delay time in seconds: ${CONFIG_RESET_DELAY_TIME}"
+
+    ## path ops
+    echo "current DIR (before): ${PWD}"
+
+    ## find scripts folder path
+    # SCRIPTS_DIR="$(echo $(cd ../ && pwd))"
+    SCRIPTS_DIR=$1
+    echo "scripts DIR: ${SCRIPTS_DIR}"
+
+    CRON_WS=${SCRIPTS_DIR}/cron-scripts
+    echo "cron_ws DIR: ${CRON_WS}"
+
+    echo "changing current working dir to : ${SCRIPTS_DIR}"
+    cd ${SCRIPTS_DIR}
+
+    echo "current DIR (after): ${PWD}"
+
+
+    ## check xibo states
+    SERVICE_WATCHDOG="xibo-watchdog"
+    SERVICE_PLAYER="xibo-player"
+
+    STATUS_WATCHDOG=0
+    STATUS_PLAYER=0
+
+    if pgrep -x "$SERVICE_WATCHDOG" >/dev/null
+    then
+        echo "$SERVICE_WATCHDOG is running"
+        STATUS_WATCHDOG=1
+    else
+        echo "$SERVICE_WATCHDOG stopped"
+    fi
+
+
+    if pgrep -x "$SERVICE_PLAYER" >/dev/null
+    then
+        echo "$SERVICE_PLAYER is running"
+        STATUS_PLAYER=1
+    else
+        echo "$SERVICE_PLAYER stopped"
+    fi
+
+    echo "watchdog status : ${STATUS_WATCHDOG}"
+    echo "player status : ${STATUS_PLAYER}"
+
+    mainControlSequence
+
+    echo "<<< player_control END [${timestamp}] >>>"
+
+) 200>/var/lock/.playerControl.exclusivelock
+

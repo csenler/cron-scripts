@@ -14,7 +14,7 @@ echo "value file : ${valuefile}"
 
 # if we don't have a file, then initialize
 if [ ! -f "$valuefile" ]; then
-   bash initialize_db.sh cronWsPath
+   bash ${CRON_WS_PATH}/initialize_db.sh ${CRON_WS_PATH} cronWsPath
 fi
 
 # read the value from the file

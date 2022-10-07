@@ -1,3 +1,3 @@
 #!/bin/sh
 
-exec savron-player
+exec /snap/bin/savron-player

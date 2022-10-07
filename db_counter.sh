@@ -2,20 +2,23 @@
 
 echo ">> db_counter START"
 
-if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 {increase || decrease || reset}" >&2
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 {CRON_WS} {increase || decrease || reset}" >&2
   exit 1
 fi
 
-echo "mode: $1"
-MODE=$1
+CRON_WS=$1
+echo "CRON_WS: ${CRON_WS}"
+
+echo "mode: $2"
+MODE=$2
 
 valuefile="db/player_check_counter.dat"
 echo "value file : ${valuefile}"
 
 # if we don't have a file, then initialize
 if [ ! -f "$valuefile" ]; then
-   bash initialize_db.sh counter
+   bash ${CRON_WS}/initialize_db.sh ${CRON_WS} counter
 fi
 
 # read the value from the file

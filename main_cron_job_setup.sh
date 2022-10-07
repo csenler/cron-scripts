@@ -2,18 +2,19 @@
 
 echo ">> main cron job script running..."
 
-USER="svrn"
-echo "for user: ${USER}"
-
 echo "current DIR: ${PWD}"
 
 ## ============== CONFIG ==========================
-# eshot_scripts_path
-SCRIPTS_DIR=${HOME}/eshot_ws/eshot-player-scripts
+## eshot_scripts_path
+# SCRIPTS_DIR=${HOME}/eshot_ws/eshot-player-scripts
+# echo "scripts folder path: ${SCRIPTS_DIR}"
 
-echo "scripts folder path: ${SCRIPTS_DIR}"
+## find scripts folder path
+SCRIPTS_DIR="$(echo $(cd ../ && pwd))"
+echo "scripts DIR: ${SCRIPTS_DIR}"
 
-# enter main script to run with cron here
+
+## enter main script to run with cron here
 # SCRIPT_TO_RUN=test.sh
 SCRIPT_TO_RUN=player_control.sh
 

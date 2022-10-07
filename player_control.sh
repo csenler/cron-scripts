@@ -9,6 +9,9 @@ echo "config reset delay time in seconds: ${CONFIG_RESET_DELAY_TIME}"
 SCRIPTS_DIR="$(echo $(cd ../ && pwd))"
 echo "scripts DIR: ${SCRIPTS_DIR}"
 
+CRON_WS=${SCRIPTS_DIR}/cron-scripts
+echo "cron_ws DIR: ${CRON_WS}"
+
 ## check xibo states
 SERVICE_WATCHDOG="xibo-watchdog"
 SERVICE_PLAYER="xibo-player"
@@ -45,7 +48,7 @@ function check_player_config_reset_state(){
     echo "resetStateFile file : ${resetStateFile}"
     # if we don't have a file, then initialize
     if [ ! -f "$resetStateFile" ]; then
-        bash initialize_db.sh playerResetConfigState
+        bash ${CRON_WS}/initialize_db.sh playerResetConfigState
     else
         # read the value from the file
         playerResetState=$(cat "$resetStateFile")
@@ -60,7 +63,7 @@ function player_error_state(){
     echo "timestampFile file : ${timestampFile}"
     # if we don't have a file, then initialize
     if [ ! -f "$timestampFile" ]; then
-        bash initialize_db.sh timestamp
+        bash ${CRON_WS}/initialize_db.sh timestamp
     else
         # read the value from the file
         refTimestamp=$(cat "$timestampFile")
@@ -83,9 +86,9 @@ function player_error_state(){
         bash ${SCRIPTS_DIR}/player-scripts/auto_config_reset.sh
         # set player reset state
         check_player_config_reset_state # to initialize if not initialized before
-        bash db_playerResetState.sh "true"
+        bash ${CRON_WS}/db_playerResetState.sh "true"
         # update reference timestamp
-        bash db_timestamp.sh
+        bash ${CRON_WS}/db_timestamp.sh
     fi
 }
 
@@ -95,6 +98,10 @@ function player_start(){
     bash ${SCRIPTS_DIR}/player-scripts/player_kill.sh
     # start player
     bash ${SCRIPTS_DIR}/player-scripts/run_player_with_args.sh
+}
+
+function run_player_normally(){
+    /bin/sh ${CRON_WS}/run_savron_player.sh
 }
 ## =========================== FUNCTIONS END ==================================================================
 
@@ -110,13 +117,13 @@ elif [ "${STATUS_WATCHDOG}" -eq 0 ] && [ "${STATUS_PLAYER}" -eq 0 ]; then # watc
         echo "player reset detected, will start player with arguments"
         player_start 
         echo "setting player_config_reset_state to false"
-        bash db_playerResetState.sh "false"
+        bash ${CRON_WS}/db_playerResetState.sh "false"
     elif [ "${playerResetState}" = "false" ]; then
         echo "player reset NOT detected, will start player by calling savron-player"
-        exec savron-player
+        run_player_normally
     else
         echo "playerResetState can not be obtained, will try to run player normally..."
-        exec savron-player
+        run_player_normally
     fi
 elif [ "${STATUS_WATCHDOG}" -eq 1 ] && [ "${STATUS_PLAYER}" -eq 1 ]; then # working state, set config_reset to false -> this will also be the first condition
     echo "watchdog & player running..."
@@ -125,7 +132,7 @@ elif [ "${STATUS_WATCHDOG}" -eq 1 ] && [ "${STATUS_PLAYER}" -eq 1 ]; then # work
     if [ "${playerResetState}" = "true" ]; then
         echo "setting player_config_reset_state to false"
         # set config_reset state to false
-        bash db_playerResetState.sh "false"
+        bash ${CRON_WS}/db_playerResetState.sh "false"
     fi    
 fi
 

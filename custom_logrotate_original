@@ -1,7 +1,12 @@
-PATH.log {
+PATH/*.log {
+    # The logs will be rotated every day.
     daily
+    # If the log file is missing, go on to the next one without issuing an error message.
     missingok
+    # keeping 7 newest logs
     rotate 7
+    # compressing old logs
     compress
+    # do not rotate the log if it is empty.
     notifempty
 }

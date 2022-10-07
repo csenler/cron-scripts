@@ -21,8 +21,8 @@ echo "received DIR: ${CRON_WS}"
 
 
 
-CUSTOM_CONF=${CRON_WS}/custom_logrotate_current.conf
-CUSTOM_LOGROTATE_STATE=${CRON_WS}/logrotate-state
+CUSTOM_CONF=${CRON_WS}/config/current/custom_logrotate_current.conf
+CUSTOM_LOGROTATE_STATE=${CRON_WS}/logs/logrotate-state
 
 ## we can use custom location by specifying logrorate-state file and calling logrotate periodically with a cron job
 logrotate ${CUSTOM_CONF} --state ${CUSTOM_LOGROTATE_STATE} --verbose

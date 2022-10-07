@@ -14,8 +14,9 @@ crontab -l > "./backups/cron_backup_${current_time}.txt"
 echo "removing crontab"
 crontab -r
 
-echo "applying cron_jobs_current"
-crontab cron_jobs_current
+CRON_JOB_PATH=config/current/cron_jobs_current
+echo "applying cron job at: ${CRON_JOB_PATH}"
+crontab ${CRON_JOB_PATH}
 
 echo "check if successful: "
 crontab -l

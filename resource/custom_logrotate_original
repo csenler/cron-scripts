@@ -1,6 +1,6 @@
-/home/csenler/cron_ws/logs/*.log {
+PATH_LOGS/*.log {
     # The logs will be rotated every day.
-    hourly
+    daily
     # If the log file is missing, go on to the next one without issuing an error message.
     missingok
     # keeping 7 newest logs
@@ -11,7 +11,7 @@
     notifempty
 }
 
-/home/csenler/cron_ws/backups/*.txt {
+PATH_BACKUPS/*.txt {
     # The logs will be rotated every day.
     daily
     # If the log file is missing, go on to the next one without issuing an error message.

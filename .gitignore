@@ -4,3 +4,5 @@ test_image.png
 cron_jobs_current
 cron_test
 custom_logrotate_current
+db
+config

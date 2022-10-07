@@ -14,5 +14,5 @@ then
     echo "executing rm"
     echo "${PASSWORD}" | sudo -S rm -rf logs/*
     echo "${PASSWORD}" | sudo -S rm -rf backups/*
-    echo "${PASSWORD}" | sudo -S rm -f logrotate-state
+    echo "${PASSWORD}" | sudo -S rm -rf config/current/*
 fi

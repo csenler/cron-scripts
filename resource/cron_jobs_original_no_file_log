@@ -1,6 +1,6 @@
 SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-CRON_WS=/home/csenler/cron_ws
+CRON_WS=NULL_CRON_WS
 
 SCRIPT_TEST=NULL_MAIN_SCRIPT
 LOGROTATE_SCRIPT=NULL_LOGROTATE

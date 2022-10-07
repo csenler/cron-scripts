@@ -15,7 +15,24 @@ if [ ! -d "${PWD}/backups" ]; then
    echo "backups folder does not exist, creating ..."
    mkdir -p backups
 else
-   echo "backup folders exist."
+   echo "backup folder exist."
+fi
+
+if [ ! -d "${PWD}/db" ]; then
+   echo "database folder does not exist, creating ..."
+   mkdir -p db
+else
+   echo "database folder exist."
+fi
+
+if [ ! -d "${PWD}/config" ]; then
+   echo "config folder does not exist, creating ..."
+   mkdir -p config/original
+   mkdir -p config/current
+   echo "copying necessery original configs from resource"
+   cp -r resource/* config/original
+else
+   echo "config folder exist."
 fi
 
 echo "folder check done."

@@ -27,6 +27,9 @@ sed -i "s/NULL_MAIN_SCRIPT/${SCRIPT_NAME}/g" ${TARGET_CRON_FILE}
 echo "will change logrotate script name to ${LOGROTATE_SCRIPT}"
 sed -i "s/NULL_LOGROTATE/${LOGROTATE_SCRIPT}/g" ${TARGET_CRON_FILE}
 
+echo "fixing line endings??"
+sed -i 's/^M$//' ${TARGET_CRON_FILE}
+
 echo ">> log output (if opened) will be in : ${PWD}/logs/cron_jobs_log.log"
 
 echo "changes from original to target: "

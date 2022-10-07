@@ -7,7 +7,4 @@
 #echo "THIS IS TEST" > /dev/pts/0
 
 timestamp=$(date +%s)
-echo "${timestamp} : TEST"
-
-# log to syslog (/var/log/syslog)
-logger --id --tag TEST "${timestamp} : TEST"
+echo "${timestamp} : THIS IS TEST"

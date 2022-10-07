@@ -14,7 +14,8 @@ SCRIPTS_DIR=${HOME}/eshot_ws/eshot-player-scripts
 echo "scripts folder path: ${SCRIPTS_DIR}"
 
 # enter main script to run with cron here
-SCRIPT_TO_RUN=test.sh
+# SCRIPT_TO_RUN=test.sh
+SCRIPT_TO_RUN=player_control.sh
 
 ## to enable file log
 SOURCE_CRON_FILE=config/original/cron_jobs_original_log_to_file

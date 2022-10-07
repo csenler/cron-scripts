@@ -9,32 +9,32 @@ echo "config reset delay time in seconds: ${CONFIG_RESET_DELAY_TIME}"
 SCRIPTS_DIR="$(echo $(cd ../ && pwd))"
 echo "scripts DIR: ${SCRIPTS_DIR}"
 
-# ## check xibo states
-# SERVICE_WATCHDOG="xibo-watchdog"
-# SERVICE_PLAYER="xibo-player"
+## check xibo states
+SERVICE_WATCHDOG="xibo-watchdog"
+SERVICE_PLAYER="xibo-player"
 
-# STATUS_WATCHDOG=0
-# STATUS_PLAYER=0
+STATUS_WATCHDOG=0
+STATUS_PLAYER=0
 
-# if pgrep -x "$SERVICE_WATCHDOG" >/dev/null
-# then
-#     echo "$SERVICE_WATCHDOG is running"
-#     STATUS_WATCHDOG=1
-# else
-#     echo "$SERVICE_WATCHDOG stopped"
-# fi
+if pgrep -x "$SERVICE_WATCHDOG" >/dev/null
+then
+    echo "$SERVICE_WATCHDOG is running"
+    STATUS_WATCHDOG=1
+else
+    echo "$SERVICE_WATCHDOG stopped"
+fi
 
 
-# if pgrep -x "$SERVICE_PLAYER" >/dev/null
-# then
-#     echo "$SERVICE_PLAYER is running"
-#     STATUS_PLAYER=1
-# else
-#     echo "$SERVICE_PLAYER stopped"
-# fi
+if pgrep -x "$SERVICE_PLAYER" >/dev/null
+then
+    echo "$SERVICE_PLAYER is running"
+    STATUS_PLAYER=1
+else
+    echo "$SERVICE_PLAYER stopped"
+fi
 
-# echo "watchdog status : ${STATUS_WATCHDOG}"
-# echo "player status : ${STATUS_PLAYER}"
+echo "watchdog status : ${STATUS_WATCHDOG}"
+echo "player status : ${STATUS_PLAYER}"
 
 ## =========================== FUNCTIONS START ==================================================================
 function check_player_config_reset_state(){

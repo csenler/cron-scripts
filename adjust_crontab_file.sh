@@ -28,7 +28,7 @@ echo "will change logrotate script name to ${LOGROTATE_SCRIPT}"
 sed -i "s/NULL_LOGROTATE/${LOGROTATE_SCRIPT}/g" ${TARGET_CRON_FILE}
 
 echo "fixing line endings??"
-sed -i 's/^M$//' ${TARGET_CRON_FILE}
+bash fix_line_endings.sh # TODO: do only once, check with db
 
 echo ">> log output (if opened) will be in : ${PWD}/logs/cron_jobs_log.log"
 
